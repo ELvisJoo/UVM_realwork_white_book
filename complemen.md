@@ -107,7 +107,7 @@ verdi -ssf tb.fsdb &
 
 
 
-**或者通过makefile的方式**：
+**或者通过makefile的方式来统一管理仿真编译**：
 **makefile文件**
 ```bash
 UVM_HOME    = /home/ICer/uvm-1.1d
@@ -140,3 +140,4 @@ make verdi tc=my_case0
 
 
 [Download UVM (Universal Verification Methodology) - Accellera Systems Initiative](https://accellera.org/downloads/standards/uvm)
+
