@@ -1,7 +1,7 @@
 **如果是在centOS系统中运行，**
 
 **setup.vcs中的csh文件格式需要改为bash格式，并且修改为自己的文件路径。比如：**
-
+```bash
 #!/bin/csh
 
 setenv VCS_HOME /opt/vcs/E-2011.03 
@@ -9,24 +9,19 @@ setenv UVM_HOME ~/uvm/uvm-1.1d
 setenv WORK_HOME `pwd`
 setenv SIM_TOOL VCS 
 set path = (/opt/vcs/E-2011.03/bin ${WORK_HOME}/bin $path)
+```
 
 **需要改为：**
+```bash
 #!/bin/bash
-
-
 export UVM_HOME=/home/autumn/testDemo/project/example_and_uvm_source_code/uvm-1.1d
-
 export WORK_HOME=$(pwd)
-
 export SIM_TOOL=VCS 
-
 export PATH=/opt/Synopsys/vcs_202003/Q-2020.03-SP2-7/bin:${WORK_HOME}/bin:$PATH
-
-
-
-
+```
 
 **run文件也需一并修改，如：**
+```bash
 #!/bin/csh
 if ( $SIM_TOOL == "QUESTA" ) then
 vlib work
@@ -42,9 +37,9 @@ endif
 if ( $SIM_TOOL == "NCSIM" ) then
 ncverilog +sv -f filelist.f -licqueue -timescale 1ns/1ps -uvm -uvmhome $UVM_HOME 
 endif
-
+```
 **改为：**
-
+```bash
 #!/bin/bash
 
 if [ "$SIM_TOOL" = "QUESTA" ]; then
@@ -63,7 +58,7 @@ if [ "$SIM_TOOL" = "NCSIM" ]; then
 fi
 
 endif
-
+```
 
 
 **（选用）可以在testbench中添加以下代码提取波形：**
@@ -114,7 +109,7 @@ verdi -ssf tb.fsdb &
 
 **或者通过makefile的方式**：
 **makefile文件**
-
+```bash
 UVM_HOME    = /home/ICer/uvm-1.1d
 
 include /home/ICer/uvm-1.1d/examples/Makefile.vcs
@@ -128,15 +123,20 @@ comp:
 run:
     $(SIMV) +UVM_TESTNAME=my_test
     $(CHECK)
-
+```
 **运行代码**
+```bash
 make -f Makefile.vcs
-
-或者 make run tc=my_case0
-
+```
+或者
+```bash
+make run tc=my_case0
+```
 **查看波形**
+```bash
 make verdi tc=my_case0
-
+```
 **UVM框架源码：**
+
 
 [Download UVM (Universal Verification Methodology) - Accellera Systems Initiative](https://accellera.org/downloads/standards/uvm)
