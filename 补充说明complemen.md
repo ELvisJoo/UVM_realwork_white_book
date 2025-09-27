@@ -136,9 +136,73 @@ make run tc=my_case0
 ```bash
 make verdi tc=my_case0
 ```
+
+### 关于 “+UVM_TESTNAME=” 使用方法：
+
+当启动仿真时，通过在命令行中添加 `+UVM_TESTNAME=测试用例名称` 来指定要运行的UVM 测试用例(test case)。
+
+例如，在你的脚本中已经包含了这样的用法：
+
+
+
+```
+\# 在Questa仿真中
+
+vsim ... +UVM\_TESTNAME=\$1
+
+\# 在VCS仿真中
+
+./simv +UVM\_TESTNAME=\$1
+
+\# 在NCSIM仿真中
+
+ncverilog ... +UVM\_TESTNAME=\$1
+```
+
+这里的 `$1` 表示脚本接收的第一个命令行参数，也就是你要运行的测试用例名称。
+
+### 实际操作示例：
+
+假设你有一个名为 `my_test_case` 的测试用例，运行仿真时可以这样使用：
+
+
+
+```
+\# 直接运行脚本并指定测试用例
+
+./run\_tc my\_test\_case
+```
+
+此时脚本会将 `my_test_case` 传递给 `+UVM_TESTNAME=` 参数，UVM 框架会自动找到并运行这个测试用例。
+
+### 注意事项：
+
+
+
+1. 测试用例名称必须与你在代码中定义的测试类名称完全一致（区分大小写）
+
+2. 如果不指定 `+UVM_TESTNAME`，UVM 会尝试运行默认测试用例（通常需要在代码中特别指定）
+
+3. 这是 UVM 标准的命令行参数，所有主流的仿真工具（Questa、VCS、Xcelium 等）都支持
+
+在你的脚本中，还注释了一些其他常用的 UVM 命令行参数，例如：
+
+
+
+* `+UVM_OBJECTION_TRACE`：跟踪 objection 的变化
+
+* `+UVM_PHASE_TRACE`：跟踪 UVM phases 的执行过程
+
+* `+UVM_CONFIG_DB_TRACE`：跟踪 config\_db 的设置和获取过程
+
+这些参数可以和 `+UVM_TESTNAME` 一起使用，用于调试和分析仿真过程。
+
+> 
+
 **UVM框架源码：**
 
 
 [Download UVM (Universal Verification Methodology) - Accellera Systems Initiative](https://accellera.org/downloads/standards/uvm)
+
 
 
