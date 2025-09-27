@@ -110,32 +110,81 @@ verdi -ssf tb.fsdb &
 **或者通过makefile的方式来统一管理仿真编译**：
 **makefile文件**
 ```bash
-UVM_HOME    = /home/ICer/uvm-1.1d
-
-include /home/ICer/uvm-1.1d/examples/Makefile.vcs
-
-all: comp run
-
+simulate ?= vcs
+FILELIST = ./../tb/top.f
+ 
+tc ?= test_case
+DUMP_EN ?= 1
+ 
+LOG_DIR = ${shell mkdir -p ./log}
+WAVE_DIR = ${shell mkdir -p ./wave}
+ 
+ifeq ($(DUMP_EN), 1)
+	WAVE = +define+WAVE_DUMP -fsdb
+else
+	WAVE =
+endif
+ 
 comp:
-    $(VCS) +incdir+../sv \
-        run_test.sv
-
-run:
-    $(SIMV) +UVM_TESTNAME=my_test
-    $(CHECK)
+	vcs \
+	-f $(FILELIST) \
+	-kdb -lca \
+	-full64 \
+	-sverilog -v2k \
+	-ntb_opts uvm-1.1 \
+	-debug_access+all -debug_region+cell+encrypt \
+	+lint=TFIPC-L +warn=all -error=IWNF \
+	-top top_tb \
+	-Mupdate \
+	+memcbk \
+	+libext+.v+.V+.sv+.vp \
+	+systemverilogext+.sv+.SV+ \
+	+nospecify +notimingcheck \
+	-timescale=1ns/100ps \
+	$(LOG_DIR) \
+	$(WAVE_DIR) \
+	$(WAVE) \
+	+tc_name=$(tc) \
+	-l ./log/$(tc)_compile.log
+ 
+sim:
+	./simv \
+	-l ./log/$(tc)_sim.log \
+	-ucli -i do.ucli \
+	+UVM_MAX_QUIT_COUNT=6,NO \
+	+UVM_VERBOSITY=UVM_LOW \
+	+UVM_TESTCASE=${tc} \
+	+UVM_TESTNAME=${tc} \
+	+TC_NAME=$(tc) \
+	+vpdfileswitchsize=300
+ 
+run: comp sim
+ 
+verdi:
+	verdi \
+	-f $(FILELIST) \
+	-sverilog -v2k -sv \
+	-ntb_opts uvm-1.1 \
+	+libext+.v+.V+.sv+.vp \
+	+nospecify +notimingcheck \
+	-timescale=1ns/100ps \
+	-ssf ./wave/$(tc)_wave.vf
+ 
+clean:
+	rm -f ./wave/* \
+	rm -f *.log \
+	rm -rf simv* \
+	rm -rf simv.daidir
 ```
 **运行代码**
-```bash
-make -f Makefile.vcs
-```
-或者
 ```bash
 make run tc=my_case0
 ```
 **查看波形**
 ```bash
-make verdi tc=my_case0
-```
+make verdi tc=my_case0 
+```  
+
 
 ### 关于 “+UVM_TESTNAME=” 使用方法：
 
@@ -146,17 +195,17 @@ make verdi tc=my_case0
 
 
 ```
-\# 在Questa仿真中
+# 在Questa仿真中
 
-vsim ... +UVM\_TESTNAME=\$1
+vsim ... +UVM_TESTNAME=$1
 
-\# 在VCS仿真中
+# 在VCS仿真中
 
-./simv +UVM\_TESTNAME=\$1
+./simv +UVM_TESTNAME=$1
 
-\# 在NCSIM仿真中
+# 在NCSIM仿真中
 
-ncverilog ... +UVM\_TESTNAME=\$1
+ncverilog ... +UVM_TESTNAME=$1
 ```
 
 这里的 `$1` 表示脚本接收的第一个命令行参数，也就是你要运行的测试用例名称。
@@ -168,9 +217,9 @@ ncverilog ... +UVM\_TESTNAME=\$1
 
 
 ```
-\# 直接运行脚本并指定测试用例
+# 直接运行脚本并指定测试用例
 
-./run\_tc my\_test\_case
+./run_tc my_test_case
 ```
 
 此时脚本会将 `my_test_case` 传递给 `+UVM_TESTNAME=` 参数，UVM 框架会自动找到并运行这个测试用例。
@@ -203,6 +252,7 @@ ncverilog ... +UVM\_TESTNAME=\$1
 
 
 [Download UVM (Universal Verification Methodology) - Accellera Systems Initiative](https://accellera.org/downloads/standards/uvm)
+
 
 
 
